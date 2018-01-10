@@ -40,12 +40,14 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/button"
+                android:id="@+id/login_login_button"
                 style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="15dp"
                 android:layout_marginBottom="15dp"
                 android:layout_marginEnd="10dp"
+                android:layout_marginRight="10dp"
                 android:layout_marginTop="10dp"
                 android:layout_weight="1"
                 android:background="@drawable/button_drawable"
@@ -55,11 +57,13 @@
                 android:textColor="@android:color/white" />
 
             <Button
-                android:id="@+id/button2"
+                android:id="@+id/login_sign_up_button"
                 style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="15dp"
                 android:layout_marginBottom="15dp"
+                android:layout_marginLeft="10dp"
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="10dp"
                 android:layout_weight="1"
@@ -91,7 +95,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                android:background="@drawable/common_google_signin_btn_text_light_focused"
+                android:background="@drawable/common_google_signin_btn_text_light"
+                android:onClick="signInWithGoogle"
                 android:text="Connect with Google" />
         </RelativeLayout>
 
