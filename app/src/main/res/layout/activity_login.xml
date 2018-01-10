@@ -8,10 +8,9 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="68dp"
         android:orientation="vertical">
 
         <EditText
@@ -19,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="E-mail address"
+            android:hint="@string/e_mail_address"
             android:inputType="textEmailAddress" />
 
         <EditText
@@ -27,16 +26,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="Password"
+            android:hint="@string/password"
             android:inputType="textPassword" />
 
         <LinearLayout
+            style="?android:attr/buttonBarStyle"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <Button
                 android:id="@+id/button"
+                style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
@@ -44,21 +45,39 @@
                 android:background="@drawable/button_drawable"
                 android:elevation="4dp"
                 android:stateListAnimator="@animator/raise_button"
-                android:text="Log In"
+                android:text="@string/log_in"
                 android:textColor="@android:color/white" />
 
             <Button
                 android:id="@+id/button2"
+                style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:layout_weight="1"
                 android:background="@drawable/button_drawable"
                 android:drawableEnd="@drawable/ic_navigate_next_black_24dp"
+                android:drawableRight="@drawable/ic_navigate_next_black_24dp"
                 android:elevation="4dp"
-                android:text="Sign Up"
-                android:textColor="@android:color/white"
-                android:drawableRight="@drawable/ic_navigate_next_black_24dp" />
+                android:text="@string/sign_up"
+                android:textColor="@android:color/white" />
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="15dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginRight="25dp"
+            android:layout_marginTop="15dp"
+            android:background="@android:color/black"
+            android:text="TextView" />
+
+        <Button
+            android:id="@+id/button3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Button" />
     </LinearLayout>
 </RelativeLayout>
