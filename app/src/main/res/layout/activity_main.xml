@@ -25,21 +25,21 @@
         <!--android:id="@+id/imageView"-->
          <!--/>-->
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        <TextView
+            android:id="@+id/tv"
+            android:layout_width="wrap_content"
 
 
-        android:id="@+id/tv"
-        android:layout_marginLeft="40dp"
-        android:text="Donor's Detail Form"
-        android:fontFamily="sans-serif"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
 
-        android:textSize="30sp"
-     android:textStyle="bold"
-        android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="31dp"
+            android:fontFamily="sans-serif"
 
-        android:layout_marginTop="31dp" />
+            android:text="Donor's Detail Form"
+            android:textSize="30sp"
+            android:textStyle="bold" />
 
     <LinearLayout
         android:id="@+id/llv"
