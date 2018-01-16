@@ -24,6 +24,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
 import static com.chromastone.donatesmile.Constants.ALL_OK;
@@ -71,7 +72,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
         logIn.setOnClickListener(this);
 
-        snackbar = Snackbar.make(findViewById(R.id.button3),"Invalid Credentials",Snackbar.LENGTH_INDEFINITE);
+        snackbar = Snackbar.make(findViewById(R.id.button3),"Invalid Credentials",Snackbar.LENGTH_LONG);
         dialog = new ProgressDialog(this);
         dialog.setCanceledOnTouchOutside(false);
         dialog.setMessage("Authenticating");
@@ -96,8 +97,13 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     public void onStart() {
         super.onStart();
         //CHECK IF SOME USER IS ALREADY LOGGED IN
-        if(FirebaseAuth.getInstance().getCurrentUser()!=null)
-            startActivity(new Intent(LoginActivity.this,MainActivity.class));
+        if (mAuth.getCurrentUser() != null) {
+            if (mAuth.getCurrentUser().isEmailVerified()) {
+                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            }else{
+                Snackbar.make(findViewById(R.id.button3),"E-mail address not verified",Snackbar.LENGTH_LONG).show();
+            }
+        }
     }
 
     @Override
@@ -144,13 +150,16 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     @Override
     public void onClick(View v) {
+        dialog.show();
         int check_email = validateEmail();
         int check_password = validatePassword();
         if(check_email == INVALID_EMAIL){
             Email.setError("Invalid email");
+            dialog.cancel();
         }
         if(check_password == INVALID_PASSWORD){
             Password.setError("Invalid Password");
+            dialog.cancel();
             return;
         }
         if (check_email == ALL_OK && check_password == ALL_OK){
@@ -161,7 +170,12 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                             if (task.isSuccessful()){
                                 dialog.cancel();
                                 Log.d("EmailLogin","Successful for user "+Email.getText().toString());
-                                startActivity(new Intent(LoginActivity.this,MainActivity.class));
+                                FirebaseUser user = mAuth.getCurrentUser();
+                                if (user.isEmailVerified()) {
+                                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                                }else{
+                                    Snackbar.make(findViewById(R.id.button3),"E-mail address not verified",Snackbar.LENGTH_LONG).show();
+                                }
                             }else{
                                 dialog.cancel();
                                 snackbar.show();
