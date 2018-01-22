@@ -1,195 +1,136 @@
 package com.chromastone.donatesmile;
 
-import android.app.DatePickerDialog;
-import android.app.Dialog;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.DatePicker;
-import android.widget.EditText;
-import android.widget.Spinner;
+import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
 
-import java.util.Calendar;
+public class MainActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener {
 
-public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener
-{
-    String cityToBePassed;
+    ImageView profilePic;
+    TextView profileName;
+    TextView profileEmail;
+    FirebaseUser mAuth;
 
-    private int year;
-    private int month;
-    private int day;
-EditText email,name,no,lastname;
-
-    static final int DATE_PICKER_ID = 1111;
-
-
-    Button submit;
-
-    TextView changedate;
-    String[]array={"AB+","O-","A+","A-","B-","B+","AB-","O+"};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-        if(FirebaseAuth.getInstance().getCurrentUser()!=null){
-            Toast.makeText(this, "Signed in as "+FirebaseAuth.getInstance().getCurrentUser().getDisplayName(), Toast.LENGTH_SHORT).show();
-        }
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
 
-        submit=(Button)findViewById(R.id.submit);
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
 
-        Spinner getmessage = (Spinner) findViewById(R.id.getmsg);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_dropdown_item, array);
+        View header = navigationView.getHeaderView(0);
 
-        email=(EditText)findViewById(R.id.email);
-        name=(EditText)findViewById(R.id.doname);
-        no=(EditText)findViewById(R.id.no);
-        lastname=(EditText)findViewById(R.id.name);
-
-
-        getmessage.setAdapter(adapter);
-        getmessage.setOnItemSelectedListener(this);
-        changedate=(TextView)findViewById(R.id.date);
-
-        final Calendar c = Calendar.getInstance();
-        year  = c.get(Calendar.YEAR);
-        month = c.get(Calendar.MONTH);
-        day   = c.get(Calendar.DAY_OF_MONTH);
-
-
-        submit.setOnClickListener(new View.OnClickListener() {
+        mAuth = FirebaseAuth.getInstance().getCurrentUser();
+        profilePic = header.findViewById(R.id.drawer_profile_image);
+        profileName = header.findViewById(R.id.drawer_profile_name);
+        profileEmail = header.findViewById(R.id.drawer_profile_email);
+        ImageView view = header.findViewById(R.id.drawer_profile_edit);
+        view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                String itemname = name.getText().toString();
-
-
-                String itemID = "" + itemname;
-
-                String itemlastname = lastname.getText().toString();
-
-
-                String itemIDs = "" + itemlastname;
-
-                    String MobilePattern = "[0-9]{10}";
-                    String emaill = email.getText().toString().trim();
-                    String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
-
-//                if (name.length() > 25) {
-//
-//                    Toast.makeText(getApplicationContext(), "pls enter less the 25 character in user name", Toast.LENGTH_SHORT).show();
-
-                if (TextUtils.isEmpty(itemname)) {
-                    //name is empty
-                    Toast.makeText(MainActivity.this, "Please enter Valid name ", Toast.LENGTH_SHORT).show();
-                    // stopping the function execution further
-
-                    return;
-                }
-
-
-
-               else if (TextUtils.isEmpty(itemlastname)) {
-                    //email is empty
-                    Toast.makeText(MainActivity.this, "Please enter Last Name ", Toast.LENGTH_SHORT).show();
-                    // stopping the function execution further
-
-                    return;
-                }
-//                }
-
-                else if (name.length() == 0 || lastname.length() == 0 || no.length() ==
-                            0 || email.length() == 0) {
-
-                        Toast.makeText(getApplicationContext(), "pls fill the empty fields", Toast.LENGTH_SHORT).show();
-
-
-                    }
-
-
-                    else if (!email.getText().toString().matches(emailPattern)) {
-
-                        Toast.makeText(getApplicationContext(), "Please Enter Valid Email Address", Toast.LENGTH_SHORT).show();
-
-
-                    } else if (!no.getText().toString().matches(MobilePattern)) {
-
-                        Toast.makeText(getApplicationContext(), "Please enter valid 10 digit phone number", Toast.LENGTH_SHORT).show();
-
-                    }
-
             }
         });
+        if (mAuth != null){
+            if (mAuth.getPhotoUrl() != null){
+                Picasso.with(MainActivity.this).load(mAuth.getPhotoUrl()).into(profilePic, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        profilePic.setVisibility(View.VISIBLE);
+                        Bitmap bitmap = ((BitmapDrawable)profilePic.getDrawable()).getBitmap();
+                        RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(getResources(),bitmap);
+                        drawable.setCircular(true);
+                        profilePic.setImageDrawable(drawable);
+                    }
 
+                    @Override
+                    public void onError() {
 
-        changedate.setText(new StringBuilder()
-                // Month is 0 based, just add 1
-                .append("Select Date :").append(" ").append("").append(" ")
-                .append(" ").append(" "));
-
-        changedate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v)
-            {
-
-                showDialog(DATE_PICKER_ID);
-
-
+                    }
+                });
             }
-        });
-    }
-    @Override
-    protected Dialog onCreateDialog(int id) {
-        switch (id) {
-            case DATE_PICKER_ID:
-
-                // open datepicker dialog.
-                // set date picker for current date
-                // add pickerListener listner to date picker
-                return new DatePickerDialog(this, pickerListener, year, month,day);
+            new BackGroundClass().execute("setHeader");
         }
-        return null;
+
+
     }
 
-    private DatePickerDialog.OnDateSetListener pickerListener = new DatePickerDialog.OnDateSetListener() {
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
 
-        // when dialog box is closed, below method will be called.
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        if (id == R.id.nav_camera) {
+            // Handle the camera action
+        }else if (id == R.id.nav_profile){
+
+        }else if (id == R.id.nav_sign_out){
+            FirebaseAuth.getInstance().signOut();
+            finish();
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    public class BackGroundClass extends AsyncTask<String, Integer, String>{
+
         @Override
-        public void onDateSet(DatePicker view, int selectedYear,
-                              int selectedMonth, int selectedDay) {
-
-            year  = selectedYear;
-            month = selectedMonth;
-            day   = selectedDay;
-
-            // Show selected date
-          changedate.setText(new StringBuilder().append(month + 1)
-                    .append("-").append(day).append("-").append(year)
-                    .append(" "));
-
+        protected String doInBackground(String... strings) {
+            String string1 = strings[0];
+            if (string1.contentEquals("setHeader")){
+                if (mAuth.getDisplayName() != null){
+                    profileName.setText(mAuth.getDisplayName());
+                }else{
+                    profileName.setVisibility(View.GONE);
+                }
+                if (mAuth.getEmail() != null){
+                    profileEmail.setText(mAuth.getEmail());
+                }else{
+                    profileEmail.setVisibility(View.GONE);
+                }
+            }
+            return "Success";
         }
-    };
-
-
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
-    {
-        cityToBePassed=parent.getItemAtPosition(position).toString();
-
-//        Toast.makeText(MainActivity.this, " select blood group", Toast.LENGTH_SHORT).show();
-
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-
     }
 }
