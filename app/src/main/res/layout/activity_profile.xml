@@ -13,24 +13,35 @@
         android:layout_marginBottom="20dp">
 
         <FrameLayout
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true">
 
             <ImageView
                 android:id="@+id/profile_profile_image"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_margin="10dp"
+                app:srcCompat="@drawable/ic_account_circle_black" />
+
+            <ProgressBar
+                android:id="@+id/profile_image_progress"
+                style="?android:attr/progressBarStyle"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:srcCompat="@drawable/ic_account_circle_black" />
+                android:layout_margin="10dp" />
 
             <ImageView
                 android:id="@+id/profile_image_edit"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:layout_gravity="bottom|end"
+                android:layout_margin="10dp"
                 android:background="@drawable/green_circle"
+                android:elevation="6dp"
                 android:padding="10dp"
+                android:stateListAnimator="@animator/raise_button"
                 app:srcCompat="@drawable/ic_camera_enhance_black" />
         </FrameLayout>
     </RelativeLayout>
@@ -80,8 +91,9 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:ems="10"
+            android:enabled="false"
             android:hint="E-mail"
-            android:inputType="textEmailAddress"
+            android:inputType="none"
             android:singleLine="true" />
 
         <Button

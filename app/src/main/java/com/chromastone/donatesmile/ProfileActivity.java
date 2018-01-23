@@ -9,22 +9,33 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
 
 public class ProfileActivity extends AppCompatActivity {
 
     private EditText name;
     private EditText email;
     private EditText phone;
+
     private Button verifyEmail;
     private Button verifyPhone;
+
     private FirebaseAuth mAuth;
     private FirebaseUser mUser;
+
     private ProgressDialog dialog;
+
     private ImageView EmailVerified;
     private ImageView PhoneVerified;
+
+    private ImageView profilePic;
+    private ImageView profileEdit;
+    private ProgressBar profilePicProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,14 +46,37 @@ public class ProfileActivity extends AppCompatActivity {
         email = findViewById(R.id.profile_email);
         phone = findViewById(R.id.profile_phone);
 
+        profilePic = findViewById(R.id.profile_profile_image);
+        profileEdit = findViewById(R.id.profile_image_edit);
+        profilePicProgress = findViewById(R.id.profile_image_progress);
+
         verifyEmail = findViewById(R.id.profile_email_verify);
         verifyPhone = findViewById(R.id.profile_phone_verify);
 
         EmailVerified = findViewById(R.id.profile_email_verified);
         PhoneVerified = findViewById(R.id.profile_phone_verified);
+
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
+        if (mUser.getProviderId().contentEquals("google.com")) {
+            name.setEnabled(false);
+            profileEdit.setVisibility(View.GONE);
+            if (mUser.getPhotoUrl() != null) {
+                Picasso.with(ProfileActivity.this).load(mUser.getPhotoUrl()).into(profilePic, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        profilePicProgress.setVisibility(View.GONE);
+                    }
 
+                    @Override
+                    public void onError() {
+                        profilePicProgress.setVisibility(View.GONE);
+                    }
+                });
+            }
+        }else{
+            profilePicProgress.setVisibility(View.GONE);
+        }
         new ProfileActivity.BackGroundClass().execute("setHeader");
 
         verifyEmail.setOnClickListener(new View.OnClickListener() {
@@ -65,6 +99,14 @@ public class ProfileActivity extends AppCompatActivity {
                     });
                 }else{
                     email.setError("Invalid Email");
+                }
+            }
+        });
+
+        verifyPhone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (Constants.validatePhone(phone.getText().toString()) == Constants.ALL_OK){
                 }
             }
         });

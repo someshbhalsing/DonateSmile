@@ -19,10 +19,18 @@ public class Constants {
     public static final int INVALID_EMAIL = 1;
     public static final int INVALID_PASSWORD = 2;
     public static final int VERIFICATION_LINK_SENT = 1002;
+    public static final int INVALID_PHONE = 3;
 
     public static int validateEmail(String email) {
         if(TextUtils.isEmpty(email) || !Patterns.EMAIL_ADDRESS.matcher(email).matches())
             return INVALID_EMAIL;
+        else
+            return ALL_OK;
+    }
+
+    public static int validatePhone(String phone) {
+        if(TextUtils.isEmpty(phone) || !TextUtils.isDigitsOnly(phone) || phone.length()!=10)
+            return INVALID_PHONE;
         else
             return ALL_OK;
     }
