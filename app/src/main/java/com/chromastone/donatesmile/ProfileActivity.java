@@ -10,11 +10,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
+import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthProvider;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+
+import java.util.concurrent.TimeUnit;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -36,6 +42,9 @@ public class ProfileActivity extends AppCompatActivity {
     private ImageView profilePic;
     private ImageView profileEdit;
     private ProgressBar profilePicProgress;
+
+    private String mVerificationId;
+    private PhoneAuthProvider.ForceResendingToken mToken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,10 +116,32 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (Constants.validatePhone(phone.getText().toString()) == Constants.ALL_OK){
+                    startPhoneAuthentication(phone.getText().toString());
                 }
             }
         });
         initProgressDialog("Sending verification link");
+    }
+
+    private void startPhoneAuthentication(String s) {
+        PhoneAuthProvider.getInstance().verifyPhoneNumber(s, 2, TimeUnit.MINUTES, ProfileActivity.this, new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+            @Override
+            public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
+                Toast.makeText(ProfileActivity.this, "Phone Verified", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onVerificationFailed(FirebaseException e) {
+
+            }
+
+            @Override
+            public void onCodeSent(String s, PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+                super.onCodeSent(s, forceResendingToken);
+                mVerificationId = s;
+                mToken = forceResendingToken;
+            }
+        });
     }
 
     public class BackGroundClass extends AsyncTask<String, Integer, String> {
