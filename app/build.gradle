@@ -13,6 +13,7 @@ android {
     }
     buildTypes {
         release {
+            android.defaultConfig.vectorDrawables.useSupportLibrary = true
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

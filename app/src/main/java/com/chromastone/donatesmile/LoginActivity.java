@@ -98,11 +98,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         super.onStart();
         //CHECK IF SOME USER IS ALREADY LOGGED IN
         if (mAuth.getCurrentUser() != null) {
-            if (mAuth.getCurrentUser().isEmailVerified()) {
-                startActivity(new Intent(LoginActivity.this, MainActivity.class));
-            }else{
-                Snackbar.make(findViewById(R.id.button3),"E-mail address not verified",Snackbar.LENGTH_LONG).show();
-            }
+            startActivity(new Intent(LoginActivity.this, MainActivity.class));
         }
     }
 
@@ -171,11 +167,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                                 dialog.cancel();
                                 Log.d("EmailLogin","Successful for user "+Email.getText().toString());
                                 FirebaseUser user = mAuth.getCurrentUser();
-                                if (user.isEmailVerified()) {
-                                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                                }else{
-                                    Snackbar.make(findViewById(R.id.button3),"E-mail address not verified",Snackbar.LENGTH_LONG).show();
-                                }
+                                startActivity(new Intent(LoginActivity.this, MainActivity.class));
                             }else{
                                 dialog.cancel();
                                 snackbar.show();

@@ -1,5 +1,6 @@
 package com.chromastone.donatesmile;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
@@ -56,7 +57,7 @@ public class MainActivity extends AppCompatActivity
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                startActivity(new Intent(MainActivity.this,ProfileActivity.class));
             }
         });
         if (mAuth != null){
