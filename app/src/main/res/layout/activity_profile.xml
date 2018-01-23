@@ -53,7 +53,7 @@
             android:id="@+id/profile_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="53dp"
+            android:layout_marginLeft="52dp"
             android:layout_weight="1"
             android:ems="10"
             android:inputType="textPersonName" />
@@ -76,9 +76,9 @@
 
         <EditText
             android:id="@+id/profile_email"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="3"
+            android:layout_weight="1"
             android:ems="10"
             android:hint="E-mail"
             android:inputType="textEmailAddress"
@@ -121,7 +121,7 @@
             android:id="@+id/profile_phone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="22dp"
             android:layout_weight="1"
             android:ems="10"
             android:hint="Phone No"
