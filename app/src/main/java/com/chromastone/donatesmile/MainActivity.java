@@ -107,6 +107,7 @@ public class MainActivity extends AppCompatActivity
         }else if (id == R.id.nav_sign_out){
             FirebaseAuth.getInstance().signOut();
             finish();
+            startActivity(new Intent(MainActivity.this,LoginActivity.class));
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

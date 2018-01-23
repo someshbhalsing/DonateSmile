@@ -71,13 +71,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
+            android:layout_weight="0"
             android:text="Email Address :" />
 
         <EditText
             android:id="@+id/profile_email"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="3"
             android:ems="10"
             android:hint="E-mail"
             android:inputType="textEmailAddress"
@@ -89,13 +90,15 @@
             android:layout_height="wrap_content"
             android:background="@drawable/ripple"
             android:text="Verify"
-            android:textColor="@android:color/holo_green_dark" />
+            android:textColor="@android:color/holo_green_dark"
+            android:visibility="visible" />
 
         <ImageView
-            android:id="@+id/imageView2"
+            android:id="@+id/profile_email_verified"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
+            android:layout_weight="0"
             android:visibility="gone"
             app:srcCompat="@drawable/verified_green" />
     </LinearLayout>
@@ -133,7 +136,7 @@
             android:textColor="@android:color/holo_green_dark" />
 
         <ImageView
-            android:id="@+id/imageView3"
+            android:id="@+id/profile_phone_verified"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"

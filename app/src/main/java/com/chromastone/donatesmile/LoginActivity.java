@@ -1,6 +1,7 @@
 package com.chromastone.donatesmile;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -8,10 +9,10 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -24,7 +25,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
 import static com.chromastone.donatesmile.Constants.ALL_OK;
@@ -45,6 +45,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     private Snackbar snackbar;
     private ProgressDialog dialog;
+    private TextView ForgotPassword;
+    private static final int REQUEST_CODE = 1001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +65,31 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
         // [START initialize_auth]
         mAuth = FirebaseAuth.getInstance();
-
+        ForgotPassword = findViewById(R.id.login_forgot_password);
+        ForgotPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(LoginActivity.this);
+                builder.setTitle("Password Recovery");
+                builder.setView(R.layout.forgot_password);
+                final EditText email = findViewById(R.id.forgot_email);
+                builder.setMessage("Please enter registered email address");
+                builder.setPositiveButton("Send reset link", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        forgotPassword(email.getText().toString());
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+                builder.setCancelable(false);
+                builder.show();
+            }
+        });
         Email = findViewById(R.id.login_email);
         Password = findViewById(R.id.login_password);
 
@@ -77,6 +103,13 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         dialog.setCanceledOnTouchOutside(false);
         dialog.setMessage("Authenticating");
         dialog.setCancelable(false);
+
+        SignUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(new Intent(LoginActivity.this,SignUpActivity.class),REQUEST_CODE);
+            }
+        });
     }
 
     public void signInWithGoogle(View view) {
@@ -99,6 +132,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         //CHECK IF SOME USER IS ALREADY LOGGED IN
         if (mAuth.getCurrentUser() != null) {
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            finish();
         }
     }
 
@@ -120,6 +154,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 Snackbar.make(findViewById(R.id.linearLayout2),"Google SignIn Failed",Snackbar.LENGTH_SHORT).show();
             }
         }
+
     }
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
@@ -147,11 +182,12 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     @Override
     public void onClick(View v) {
         dialog.show();
-        int check_email = validateEmail();
+        int check_email = Constants.validateEmail(Email.getText().toString());
         int check_password = validatePassword();
         if(check_email == INVALID_EMAIL){
             Email.setError("Invalid email");
             dialog.cancel();
+            return;
         }
         if(check_password == INVALID_PASSWORD){
             Password.setError("Invalid Password");
@@ -166,8 +202,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                             if (task.isSuccessful()){
                                 dialog.cancel();
                                 Log.d("EmailLogin","Successful for user "+Email.getText().toString());
-                                FirebaseUser user = mAuth.getCurrentUser();
                                 startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                                finish();
                             }else{
                                 dialog.cancel();
                                 snackbar.show();
@@ -184,11 +220,21 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         return ALL_OK;
     }
 
-    private int validateEmail() {
-        String email = Email.getText().toString();
-        if(TextUtils.isEmpty(email) || !Patterns.EMAIL_ADDRESS.matcher(email).matches())
-            return INVALID_EMAIL;
-        else
-            return ALL_OK;
+    private void forgotPassword(String email){
+        dialog.setMessage("Sending");
+        dialog.show();
+        mAuth.sendPasswordResetEmail(email)
+                .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            dialog.cancel();
+                            Snackbar.make(findViewById(R.id.button3),"Password reset email sent successfully!",Snackbar.LENGTH_LONG).show();
+                        }else{
+                            dialog.cancel();
+                            Snackbar.make(findViewById(R.id.button3),"Link sending failed :(",Snackbar.LENGTH_LONG).show();
+                        }
+                    }
+                });
     }
 }
