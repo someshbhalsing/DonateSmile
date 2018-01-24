@@ -156,6 +156,41 @@
             app:srcCompat="@drawable/verified_green" />
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/profile_otp_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:visibility="gone">
+
+        <EditText
+            android:id="@+id/profile_phone_otp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="6"
+            android:hint="OTP"
+            android:inputType="number" />
+
+        <Button
+            android:id="@+id/profile_otp_submit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple"
+            android:text="Submit"
+            android:textColor="@android:color/holo_green_dark" />
+
+        <Button
+            android:id="@+id/profile_phone_resend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple"
+            android:text="Resend"
+            android:textColor="@android:color/holo_green_dark" />
+    </LinearLayout>
+
     <Button
         android:id="@+id/profile_submit"
         android:layout_width="match_parent"

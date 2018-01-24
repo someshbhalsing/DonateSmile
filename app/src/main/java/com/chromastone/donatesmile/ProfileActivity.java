@@ -1,7 +1,7 @@
 package com.chromastone.donatesmile;
 
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -23,6 +24,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.auth.UserInfo;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -33,9 +35,13 @@ public class ProfileActivity extends AppCompatActivity {
     private EditText name;
     private EditText email;
     private EditText phone;
+    private EditText otp;
 
     private Button verifyEmail;
     private Button verifyPhone;
+    private Button resendOTP;
+    private Button submitOTP;
+    private Button Submit;
 
     private FirebaseAuth mAuth;
     private FirebaseUser mUser;
@@ -52,10 +58,15 @@ public class ProfileActivity extends AppCompatActivity {
     private String mVerificationId;
     private PhoneAuthProvider.ForceResendingToken mToken;
 
+    private LinearLayout ll1;
+
     private android.support.v7.app.AlertDialog.Builder alertDialog;
 
     private boolean otpSent;
     private com.google.firebase.auth.PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
+
+    private Uri ProfilePictureURI;
+    private String displayName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +76,7 @@ public class ProfileActivity extends AppCompatActivity {
         name = findViewById(R.id.profile_name);
         email = findViewById(R.id.profile_email);
         phone = findViewById(R.id.profile_phone);
+        otp = findViewById(R.id.profile_phone_otp);
 
         profilePic = findViewById(R.id.profile_profile_image);
         profileEdit = findViewById(R.id.profile_image_edit);
@@ -72,6 +84,11 @@ public class ProfileActivity extends AppCompatActivity {
 
         verifyEmail = findViewById(R.id.profile_email_verify);
         verifyPhone = findViewById(R.id.profile_phone_verify);
+        resendOTP = findViewById(R.id.profile_phone_resend);
+        submitOTP = findViewById(R.id.profile_otp_submit);
+        Submit = findViewById(R.id.profile_submit);
+
+        ll1 = findViewById(R.id.profile_otp_layout);
 
         EmailVerified = findViewById(R.id.profile_email_verified);
         PhoneVerified = findViewById(R.id.profile_phone_verified);
@@ -79,61 +96,73 @@ public class ProfileActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
 
+        displayName = mUser.getDisplayName();
+
         mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
             @Override
             public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
                 signInWithPhoneAuthCredential(phoneAuthCredential);
+                hideViews(ll1);
+                hideViews(verifyPhone);
+                unhideView(PhoneVerified);
+                dialog.cancel();
             }
 
             @Override
             public void onVerificationFailed(FirebaseException e) {
-
+                Log.d("PhoneVerificationFailed",e.toString());
+                dialog.cancel();
+                Snackbar.make(findViewById(R.id.profile_submit),"Phone verification failed!",Snackbar.LENGTH_LONG).show();
             }
 
             @Override
             public void onCodeSent(String s, PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+                unhideView(ll1);
+                hideViews(verifyPhone);
                 otpSent = true;
                 mVerificationId = s;
                 mToken = forceResendingToken;
+                dialog.cancel();
             }
+
         };
         for (UserInfo user : FirebaseAuth.getInstance().getCurrentUser().getProviderData()){
             if (user.getProviderId().equals("google.com")){
                 name.setEnabled(false);
                 Log.d("ABC","GOOGLE");
-                profileEdit.setVisibility(View.GONE);
+                hideViews(profileEdit);
                 if (mUser.getPhotoUrl() != null) {
                     Picasso.with(ProfileActivity.this).load(mUser.getPhotoUrl()).into(profilePic, new Callback() {
                         @Override
                         public void onSuccess() {
-                            profilePicProgress.setVisibility(View.GONE);
+                            hideViews(profilePicProgress);
                         }
 
                         @Override
                         public void onError() {
-                            profilePicProgress.setVisibility(View.GONE);
+                            hideViews(profilePicProgress);
                         }
                     });
+                }else{
+                    hideViews(profilePicProgress);
                 }
-            }else if (user.getProviderId().equals("phone")){
-                PhoneVerified.setVisibility(View.VISIBLE);
-                verifyPhone.setVisibility(View.GONE);
+            }else if (user.getProviderId().equals("phone")&&user.getPhoneNumber()!=null){
+                unhideView(PhoneVerified);
+                hideViews(verifyPhone);
                 phone.setEnabled(false);
                 phone.setText(mUser.getPhoneNumber());
+            }else{
+                hideViews(profilePicProgress);
             }
         }
-        /*if (mUser.getProviderId().contentEquals("google.com")) {
 
-        }else{
-            profilePicProgress.setVisibility(View.GONE);
-        }*/
         new ProfileActivity.BackGroundClass().execute("setHeader");
 
         verifyEmail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                initProgressDialog("Sending verification link");
                 if (Constants.validateEmail(email.getText().toString())==Constants.ALL_OK){
-                    dialog.show();
                     Constants.sendVerificationEmail(new OnEmailVerificationSent() {
                         @Override
                         public void emailSent() {
@@ -158,13 +187,60 @@ public class ProfileActivity extends AppCompatActivity {
             public void onClick(View v) {
                 otpSent = false;
                 if (Constants.validatePhone(phone.getText().toString()) == Constants.ALL_OK){
-                    startPhoneAuthentication(phone.getText().toString());
-                    initAlertDialog();
-                    alertDialog.show();
+                    startPhoneAuthentication("+91"+phone.getText().toString());
+                    initProgressDialog("Sending OTP");
+                    return;
                 }
+                phone.setError("Invalid mobile no");
             }
         });
-        initProgressDialog("Sending verification link");
+
+        resendOTP.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (Constants.validatePhone(phone.getText().toString()) == Constants.ALL_OK) {
+                    resendVerificationCode("+91"+phone.getText().toString(), mToken);
+                    initProgressDialog("Sending OTP");
+                    return;
+                }
+                phone.setError("");
+            }
+        });
+
+        submitOTP.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (otp.getText().toString() != null && otp.getText().toString().length() == 6){
+                    dialog.cancel();
+                    verifyPhoneNumberWithCode(mVerificationId,otp.getText().toString());
+                    return;
+                }
+                otp.setError("Invalid OTP");
+            }
+        });
+
+        Submit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateProfile();
+            }
+        });
+    }
+
+    private void updateProfile() {
+        UserProfileChangeRequest.Builder builder = new UserProfileChangeRequest.Builder();
+        boolean edited = false;
+        if (!displayName.equals(name.getText().toString())){
+            builder.setDisplayName(name.getText().toString());
+            edited = true;
+        }
+        if (ProfilePictureURI != null){
+            builder.setPhotoUri(ProfilePictureURI);
+            edited = true;
+        }
+        if (edited){
+            mUser.updateProfile(builder.build());
+        }
     }
 
     private void startPhoneAuthentication(String s) {
@@ -184,10 +260,10 @@ public class ProfileActivity extends AppCompatActivity {
                     email.setText(mUser.getEmail());
                 }
                 if(mUser.isEmailVerified()){
-                    verifyEmail.setVisibility(View.GONE);
-                    EmailVerified.setVisibility(View.VISIBLE);
-
+                    hideViews(verifyEmail);
+                    unhideView(EmailVerified);
                 }
+
             }
             return "Success";
         }
@@ -198,37 +274,7 @@ public class ProfileActivity extends AppCompatActivity {
         dialog.setCanceledOnTouchOutside(false);
         dialog.setMessage(Message);
         dialog.setCancelable(false);
-    }
-
-    void initAlertDialog(){
-        alertDialog = new android.support.v7.app.AlertDialog.Builder(ProfileActivity.this);
-        alertDialog.setView(R.layout.phone_auth);
-        final EditText otpField = findViewById(R.id.phone_otp);
-        alertDialog.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String OTP = otpField.getText().toString();
-                if (otpSent && OTP.length() == 6){
-                    verifyPhoneNumberWithCode(mVerificationId,OTP);
-                    dialog.cancel();
-                }else{
-                    otpField.setError("Invalid OTP");
-                }
-            }
-        });
-        alertDialog.setNeutralButton("Resend", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                resendVerificationCode(phone.getText().toString(),mToken);
-            }
-        });
-        alertDialog.setCancelable(false);
-
-    }
-
-    private void cancelAlertDialog(){
-
-
+        dialog.show();
     }
 
     private void resendVerificationCode(String phoneNumber,
@@ -255,32 +301,27 @@ public class ProfileActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
+                                    hideViews(ll1);
+                                    hideViews(verifyPhone);
+                                    unhideView(PhoneVerified);
+                                    phone.setEnabled(false);
                                     Toast.makeText(ProfileActivity.this, "Phone authenticated!", Toast.LENGTH_SHORT).show();
                                 }else{
-                                    Toast.makeText(ProfileActivity.this, "Failure", Toast.LENGTH_SHORT).show();
+                                    otp.setError("Incorrect OTP");
                                 }
                             }
                         });
-/*
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Toast.makeText(ProfileActivity.this, "phone authenticated", Toast.LENGTH_SHORT).show();
-                            // [END_EXCLUDE]
-                        } else {
-                            // Sign in failed, display a message and update the UI
-                            if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
-                                // The verification code entered was invalid
-                                // [START_EXCLUDE silent]
-                                Toast.makeText(ProfileActivity.this, "Invalid OTP", Toast.LENGTH_SHORT).show();
-                                // [END_EXCLUDE]
-                            }
-                            // [START_EXCLUDE silent]
-                            // [END_EXCLUDE]
-                        }
-                    }
-                });*/
     }
 
+    private void hideViews(View... views){
+        for (View view : views){
+            view.setVisibility(View.GONE);
+        }
+    }
+
+    private void unhideView(View... views){
+        for (View view : views){
+            view.setVisibility(View.VISIBLE);
+        }
+    }
 }
