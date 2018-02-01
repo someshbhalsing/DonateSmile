@@ -32,7 +32,7 @@
                 android:layout_height="match_parent"
                 android:layout_margin="10dp" />
 
-            <ImageView
+            <ImageButton
                 android:id="@+id/profile_image_edit"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
@@ -67,7 +67,25 @@
             android:layout_marginLeft="52dp"
             android:layout_weight="1"
             android:ems="10"
-            android:inputType="textPersonName" />
+            android:inputType="textPersonName"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/profile_name_textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="52dp"
+            android:layout_weight="1"
+            android:text="Name"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
+        <Button
+            android:id="@+id/profile_name_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple"
+            android:text="Edit"
+            android:textColor="@android:color/holo_green_dark" />
     </LinearLayout>
 
     <LinearLayout
@@ -190,14 +208,5 @@
             android:text="Resend"
             android:textColor="@android:color/holo_green_dark" />
     </LinearLayout>
-
-    <Button
-        android:id="@+id/profile_submit"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:background="@drawable/button_drawable"
-        android:text="Submit"
-        android:textColor="@android:color/white" />
 
 </LinearLayout>

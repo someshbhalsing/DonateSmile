@@ -1,18 +1,14 @@
 package com.chromastone.donatesmile;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -60,28 +56,39 @@ public class MainActivity extends AppCompatActivity
                 startActivity(new Intent(MainActivity.this,ProfileActivity.class));
             }
         });
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         if (mAuth != null){
             if (mAuth.getPhotoUrl() != null){
-                Picasso.with(MainActivity.this).load(mAuth.getPhotoUrl()).into(profilePic, new Callback() {
+                Log.d("PP",mAuth.getPhotoUrl().toString());
+                Picasso.with(MainActivity.this).load(mAuth.getPhotoUrl()).error(R.drawable.ic_account_circle_black_24dp).into(profilePic, new Callback() {
                     @Override
                     public void onSuccess() {
                         profilePic.setVisibility(View.VISIBLE);
-                        Bitmap bitmap = ((BitmapDrawable)profilePic.getDrawable()).getBitmap();
-                        RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(getResources(),bitmap);
-                        drawable.setCircular(true);
-                        profilePic.setImageDrawable(drawable);
+                        Constants.makeImageCircular(MainActivity.this,profilePic);
                     }
 
                     @Override
                     public void onError() {
-
+                        profilePic.setVisibility(View.VISIBLE);
                     }
                 });
             }
-            new BackGroundClass().execute("setHeader");
         }
-
-
+        if (mAuth.getDisplayName() != null){
+            profileName.setText(mAuth.getDisplayName());
+        }else{
+            profileName.setVisibility(View.GONE);
+        }
+        if (mAuth.getEmail() != null){
+            profileEmail.setText(mAuth.getEmail());
+        }else{
+            profileEmail.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -115,24 +122,4 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public class BackGroundClass extends AsyncTask<String, Integer, String>{
-
-        @Override
-        protected String doInBackground(String... strings) {
-            String string1 = strings[0];
-            if (string1.contentEquals("setHeader")){
-                if (mAuth.getDisplayName() != null){
-                    profileName.setText(mAuth.getDisplayName());
-                }else{
-                    profileName.setVisibility(View.GONE);
-                }
-                if (mAuth.getEmail() != null){
-                    profileEmail.setText(mAuth.getEmail());
-                }else{
-                    profileEmail.setVisibility(View.GONE);
-                }
-            }
-            return "Success";
-        }
-    }
 }

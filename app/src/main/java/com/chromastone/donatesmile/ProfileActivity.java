@@ -1,6 +1,7 @@
 package com.chromastone.donatesmile;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -11,9 +12,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -32,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 
 public class ProfileActivity extends AppCompatActivity {
 
+    private static final int EDIT_PROFILE_PIC = 1111;
     private EditText name;
     private EditText email;
     private EditText phone;
@@ -39,11 +43,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     private Button verifyEmail;
     private Button verifyPhone;
-    private Button resendOTP;
-    private Button submitOTP;
-    private Button Submit;
 
-    private FirebaseAuth mAuth;
     private FirebaseUser mUser;
 
     private ProgressDialog dialog;
@@ -51,8 +51,7 @@ public class ProfileActivity extends AppCompatActivity {
     private ImageView EmailVerified;
     private ImageView PhoneVerified;
 
-    private ImageView profilePic;
-    private ImageView profileEdit;
+    ImageView profilePic;
     private ProgressBar profilePicProgress;
 
     private String mVerificationId;
@@ -60,13 +59,10 @@ public class ProfileActivity extends AppCompatActivity {
 
     private LinearLayout ll1;
 
-    private android.support.v7.app.AlertDialog.Builder alertDialog;
-
-    private boolean otpSent;
     private com.google.firebase.auth.PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
 
     private Uri ProfilePictureURI;
-    private String displayName;
+    private Button editName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,26 +73,61 @@ public class ProfileActivity extends AppCompatActivity {
         email = findViewById(R.id.profile_email);
         phone = findViewById(R.id.profile_phone);
         otp = findViewById(R.id.profile_phone_otp);
+        final TextView profileName = findViewById(R.id.profile_name_textView);
 
         profilePic = findViewById(R.id.profile_profile_image);
-        profileEdit = findViewById(R.id.profile_image_edit);
+        ImageButton profileEdit = findViewById(R.id.profile_image_edit);
         profilePicProgress = findViewById(R.id.profile_image_progress);
 
         verifyEmail = findViewById(R.id.profile_email_verify);
         verifyPhone = findViewById(R.id.profile_phone_verify);
-        resendOTP = findViewById(R.id.profile_phone_resend);
-        submitOTP = findViewById(R.id.profile_otp_submit);
-        Submit = findViewById(R.id.profile_submit);
-
+        Button resendOTP = findViewById(R.id.profile_phone_resend);
+        Button submitOTP = findViewById(R.id.profile_otp_submit);
+        editName = findViewById(R.id.profile_name_edit);
         ll1 = findViewById(R.id.profile_otp_layout);
 
         EmailVerified = findViewById(R.id.profile_email_verified);
         PhoneVerified = findViewById(R.id.profile_phone_verified);
 
-        mAuth = FirebaseAuth.getInstance();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
 
-        displayName = mUser.getDisplayName();
+        String displayName = mUser != null ? mUser.getDisplayName() : null;
+        if (displayName != null){
+            hideViews(name);
+            unhideView(profileName);
+            profileName.setText(displayName);
+            editName.setText("Edit");
+        }else{
+            hideViews(profileName);
+            unhideView(name);
+            editName.setText("Apply");
+        }
+
+        editName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Button b = (Button)v;
+                if (b.getText().toString().equals("Apply")){
+                    UserProfileChangeRequest.Builder builder = new UserProfileChangeRequest.Builder();
+                    if (name.getText().toString() != null) {
+                        builder.setDisplayName(name.getText().toString());
+                        mUser.updateProfile(builder.build());
+                        unhideView(profileName);
+                        profileName.setText(name.getText().toString());
+                        hideViews(name);
+                        editName.setText("Edit");
+                    }else{
+                        name.setError("Cannot be left empty");
+                        return;
+                    }
+                }else{
+                    hideViews(profileName);
+                    unhideView(name);
+                    editName.setText("Apply");
+                }
+            }
+        });
 
         mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
             @Override
@@ -112,40 +143,45 @@ public class ProfileActivity extends AppCompatActivity {
             public void onVerificationFailed(FirebaseException e) {
                 Log.d("PhoneVerificationFailed",e.toString());
                 dialog.cancel();
-                Snackbar.make(findViewById(R.id.profile_submit),"Phone verification failed!",Snackbar.LENGTH_LONG).show();
+                Snackbar.make(ll1,"Phone verification failed!",Snackbar.LENGTH_LONG).show();
             }
 
             @Override
             public void onCodeSent(String s, PhoneAuthProvider.ForceResendingToken forceResendingToken) {
                 unhideView(ll1);
                 hideViews(verifyPhone);
-                otpSent = true;
                 mVerificationId = s;
                 mToken = forceResendingToken;
                 dialog.cancel();
             }
 
         };
+
+        if (mUser.getPhotoUrl() != null) {
+            Log.d("PP",mUser.getPhotoUrl().toString());
+            Picasso.with(ProfileActivity.this).load(mUser.getPhotoUrl()).error(R.drawable.ic_account_circle_black).into(profilePic, new Callback() {
+                @Override
+                public void onSuccess() {
+                    Constants.makeImageCircular(ProfileActivity.this,profilePic);
+                    hideViews(profilePicProgress);
+                }
+
+                @Override
+                public void onError() {
+                    Log.d("PP","Error");
+                    hideViews(profilePicProgress);
+                }
+            });
+        }else{
+            hideViews(profilePicProgress);
+        }
+
         for (UserInfo user : FirebaseAuth.getInstance().getCurrentUser().getProviderData()){
             if (user.getProviderId().equals("google.com")){
                 name.setEnabled(false);
                 Log.d("ABC","GOOGLE");
-                hideViews(profileEdit);
-                if (mUser.getPhotoUrl() != null) {
-                    Picasso.with(ProfileActivity.this).load(mUser.getPhotoUrl()).into(profilePic, new Callback() {
-                        @Override
-                        public void onSuccess() {
-                            hideViews(profilePicProgress);
-                        }
+                //hideViews(profileEdit);
 
-                        @Override
-                        public void onError() {
-                            hideViews(profilePicProgress);
-                        }
-                    });
-                }else{
-                    hideViews(profilePicProgress);
-                }
             }else if (user.getProviderId().equals("phone")&&user.getPhoneNumber()!=null){
                 unhideView(PhoneVerified);
                 hideViews(verifyPhone);
@@ -166,14 +202,14 @@ public class ProfileActivity extends AppCompatActivity {
                     Constants.sendVerificationEmail(new OnEmailVerificationSent() {
                         @Override
                         public void emailSent() {
-                            Snackbar.make(findViewById(R.id.profile_submit),"Verification Email Sent Successfully!",Snackbar.LENGTH_LONG).show();
+                            Snackbar.make(ll1,"Verification Email Sent Successfully!",Snackbar.LENGTH_LONG).show();
                             dialog.cancel();
                         }
 
                         @Override
                         public void emailSendingFailed() {
                             dialog.cancel();
-                            Snackbar.make(findViewById(R.id.profile_submit),"Failed to send verification email",Snackbar.LENGTH_LONG).show();
+                            Snackbar.make(ll1,"Failed to send verification email",Snackbar.LENGTH_LONG).show();
                         }
                     });
                 }else{
@@ -185,7 +221,6 @@ public class ProfileActivity extends AppCompatActivity {
         verifyPhone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                otpSent = false;
                 if (Constants.validatePhone(phone.getText().toString()) == Constants.ALL_OK){
                     startPhoneAuthentication("+91"+phone.getText().toString());
                     initProgressDialog("Sending OTP");
@@ -219,27 +254,27 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
-        Submit.setOnClickListener(new View.OnClickListener() {
+        profileEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateProfile();
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent,"Select poster image"),EDIT_PROFILE_PIC);
             }
         });
+
     }
 
-    private void updateProfile() {
-        UserProfileChangeRequest.Builder builder = new UserProfileChangeRequest.Builder();
-        boolean edited = false;
-        if (!displayName.equals(name.getText().toString())){
-            builder.setDisplayName(name.getText().toString());
-            edited = true;
-        }
+    private void updateProfilePicture() {
         if (ProfilePictureURI != null){
-            builder.setPhotoUri(ProfilePictureURI);
-            edited = true;
-        }
-        if (edited){
-            mUser.updateProfile(builder.build());
+            Intent uploadImageIntent = new Intent(ProfileActivity.this, ImageUploaderService.class);
+            uploadImageIntent.putExtra(ImageUploaderService.EXTRA_IMAGE_URI,ProfilePictureURI);
+            uploadImageIntent.putExtra(ImageUploaderService.EXTRA_PATH,"profile_pictures/"+mUser.getUid()+".jpg");
+            uploadImageIntent.setAction(ImageUploaderService.ACTION_FOO);
+            startService(uploadImageIntent);
+        }else{
+            Snackbar.make(ll1,"Failed to update profile picture",Snackbar.LENGTH_LONG).show();
         }
     }
 
@@ -322,6 +357,31 @@ public class ProfileActivity extends AppCompatActivity {
     private void unhideView(View... views){
         for (View view : views){
             view.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == EDIT_PROFILE_PIC && resultCode == RESULT_OK){
+            if (data != null){
+                ProfilePictureURI = data.getData();
+                Picasso.with(ProfileActivity.this).load(ProfilePictureURI).into(profilePic, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        Constants.makeImageCircular(ProfileActivity.this,profilePic);
+                    }
+
+                    @Override
+                    public void onError() {
+
+                    }
+                });
+                updateProfilePicture();
+            }else{
+                Snackbar.make(ll1,"Failed to update profile picture",Snackbar.LENGTH_LONG).show();
+            }
+        }else{
+            Snackbar.make(ll1,"Failed to update profile picture",Snackbar.LENGTH_LONG).show();
         }
     }
 }

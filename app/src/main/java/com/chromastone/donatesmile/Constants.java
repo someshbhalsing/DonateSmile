@@ -1,8 +1,14 @@
 package com.chromastone.donatesmile;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.annotation.NonNull;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.text.TextUtils;
 import android.util.Patterns;
+import android.widget.ImageView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -51,5 +57,12 @@ public class Constants {
                         }
                     });
         }
+    }
+
+    public static void makeImageCircular(Context mContext, ImageView view){
+        Bitmap bitmap = ((BitmapDrawable)view.getDrawable()).getBitmap();
+        RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(mContext.getResources(),bitmap);
+        drawable.setCircular(true);
+        view.setImageDrawable(drawable);
     }
 }
