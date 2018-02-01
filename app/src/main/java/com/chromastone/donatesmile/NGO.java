@@ -1,3 +1,5 @@
+package com.chromastone.donatesmile;
+
 import com.google.android.gms.maps.model.LatLng;
 
 /**
