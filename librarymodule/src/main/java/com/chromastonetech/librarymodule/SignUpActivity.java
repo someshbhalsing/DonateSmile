@@ -1,4 +1,4 @@
-package com.chromastone.donatesmile;
+package com.chromastonetech.librarymodule;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
@@ -17,9 +17,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
-import static com.chromastone.donatesmile.Constants.ALL_OK;
-import static com.chromastone.donatesmile.Constants.INVALID_EMAIL;
-import static com.chromastone.donatesmile.Constants.INVALID_PASSWORD;
+import static com.chromastonetech.librarymodule.Constants.ALL_OK;
+import static com.chromastonetech.librarymodule.Constants.INVALID_EMAIL;
+import static com.chromastonetech.librarymodule.Constants.INVALID_PASSWORD;
 
 public class SignUpActivity extends AppCompatActivity implements View.OnClickListener {
 

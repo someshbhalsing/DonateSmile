@@ -5,8 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="15dp"
-    android:orientation="vertical"
-    tools:context="com.chromastone.donatesmile.SignUpActivity">
+    android:orientation="vertical">
 
     <EditText
         android:id="@+id/signup_email"

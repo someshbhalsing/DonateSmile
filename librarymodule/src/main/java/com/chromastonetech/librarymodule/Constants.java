@@ -1,4 +1,4 @@
-package com.chromastone.donatesmile;
+package com.chromastonetech.librarymodule;
 
 import android.content.Context;
 import android.graphics.Bitmap;

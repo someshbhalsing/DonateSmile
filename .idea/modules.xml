@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/DonateSmile.iml" filepath="$PROJECT_DIR$/DonateSmile.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/donatesmilengo/donatesmilengo.iml" filepath="$PROJECT_DIR$/donatesmilengo/donatesmilengo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/librarymodule/librarymodule.iml" filepath="$PROJECT_DIR$/librarymodule/librarymodule.iml" />
     </modules>
   </component>
 </project>

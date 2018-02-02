@@ -1,10 +1,11 @@
-package com.chromastone.donatesmile;
+package com.chromastonetech.librarymodule;
+
+/**
+ * Created by somesh on 02/02/2018.
+ */
 
 import com.google.android.gms.maps.model.LatLng;
 
-/**
- * Created by somesh on 01/02/2018.
- */
 
 public class BloodCamp{
 
