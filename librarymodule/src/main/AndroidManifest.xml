@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.chromastonetech.donatesmilengo">
+    package="com.chromastonetech.librarymodule">
 
     <application
         android:allowBackup="true"
@@ -10,15 +10,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".LoginActivity"
+            android:noHistory="true"
             android:theme="@style/AppTheme.explode">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
-        <activity android:name=".MainActivity"
-            android:theme="@style/AppTheme.explode"></activity>
+        <activity android:name=".SignUpActivity"
+            android:parentActivityName=".LoginActivity"></activity>
     </application>
 
 </manifest>
