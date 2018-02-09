@@ -240,6 +240,10 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                     }
                 });
     }
+
+    /*
+    * */
+
     protected void setSignInListener(SigninListener signInListener){
         this.signInListener = signInListener;
     }

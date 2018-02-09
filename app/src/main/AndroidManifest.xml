@@ -25,11 +25,11 @@
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".ProfileActivity"
+            android:name="com.chromastonetech.librarymodule.ProfileActivity"
             android:label="Profile" />
 
         <service
-            android:name=".ImageUploaderService"
+            android:name="com.chromastonetech.librarymodule.ImageUploaderService"
             android:exported="false" />
 
     </application>

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.chromastone.donatesmile.ProfileActivity">
+    tools:context="com.chromastonetech.librarymodule.ProfileActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"

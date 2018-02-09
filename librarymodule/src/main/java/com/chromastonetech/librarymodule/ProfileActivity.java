@@ -1,4 +1,4 @@
-package com.chromastone.donatesmile;
+package com.chromastonetech.librarymodule;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -19,8 +19,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.chromastonetech.librarymodule.Constants;
-import com.chromastonetech.librarymodule.OnEmailVerificationSent;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
@@ -273,6 +271,7 @@ public class ProfileActivity extends AppCompatActivity {
             Intent uploadImageIntent = new Intent(ProfileActivity.this, ImageUploaderService.class);
             uploadImageIntent.putExtra(ImageUploaderService.EXTRA_IMAGE_URI,ProfilePictureURI);
             uploadImageIntent.putExtra(ImageUploaderService.EXTRA_PATH,"profile_pictures/"+mUser.getUid()+".jpg");
+            uploadImageIntent.putExtra(ImageUploaderService.IS_PROFILE_PICTURE,true);
             uploadImageIntent.setAction(ImageUploaderService.ACTION_FOO);
             startService(uploadImageIntent);
         }else{
